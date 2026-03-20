@@ -42,31 +42,26 @@ def webhook():
 
     data = request.get_json(silent=True) or {}
 
-    # Handle plain text or JSON from TradingView
     if not data:
         raw = request.data.decode("utf-8").strip()
         message = f"🚨 <b>TradingView Alert</b>\n\n{raw}"
     else:
-        ticker       = data.get("ticker", "N/A")
-        price        = data.get("price", "N/A")
-        action       = data.get("action", "").upper()
-        interval     = data.get("interval", "")
-        message_text = data.get("message", "")
+        ticker    = data.get("ticker",    "N/A")
+        signal    = data.get("signal",    "N/A")
+        timeframe = data.get("timeframe", data.get("interval", "N/A"))
+        price     = data.get("price",     "N/A")
+        action    = data.get("action",    "").upper()
 
         emoji = "🟢" if action == "BUY" else "🔴" if action == "SELL" else "⚡"
 
         message = (
-            f"{emoji} <b>TradingView Alert</b>\n"
+            f"{emoji} <b>New Signal Alert</b>\n"
             f"━━━━━━━━━━━━━━\n"
-            f"📊 <b>Ticker:</b> {ticker}\n"
-            f"💰 <b>Price:</b> {price}\n"
+            f"📊 <b>Ticker</b>      :  {ticker}\n"
+            f"📌 <b>Signal</b>      :  {signal}\n"
+            f"⏱ <b>Timeframe</b>  :  {timeframe}\n"
+            f"💰 <b>Price</b>       :  {price}\n"
         )
-        if action:
-            message += f"📌 <b>Action:</b> {action}\n"
-        if interval:
-            message += f"⏱ <b>Interval:</b> {interval}\n"
-        if message_text:
-            message += f"📝 <b>Note:</b> {message_text}\n"
 
     success = send_telegram_message(message)
 
